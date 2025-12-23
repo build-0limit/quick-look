@@ -43,10 +43,21 @@ function escapeHtml(s) {
     .replace(/'/g, "&#39;");
 }
 
+// 清理文本
+function sanitizeText(s, maxLen = 400) {
+  if (typeof s !== "string") return "";
+  return s
+    .replace(/<[^>]*>/g, "")
+    .replace(/[\u0000-\u001F\u007F]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, maxLen);
+}
+
 // 调用大模型API生成描述
 async function generateDescriptionByLLM(url, hint = "", apiKey, model = "qwen-plus", endpoint = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions") {
   const targetUrl = url.trim();
-  const hintText = hint;
+  const hintText = sanitizeText(hint);
 
   if (!isHttpUrl(targetUrl)) {
     throw new Error("Invalid URL (must be http/https)");
