@@ -1,5 +1,27 @@
-# Vue 3 + TypeScript + Vite
+# 短链创建器 - LLM 驱动的智能短链接生成工具
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+本项目由阿里云ESA提供加速、计算和保护
 
-Learn more about the recommended Project Setup and IDE Support in the [Vue Docs TypeScript Guide](https://vuejs.org/guide/typescript/overview.html#project-setup).
+#阿里云ESA Pages #阿里云云工开物话题
+
+VIBE CODE
+
+## 项目简介
+
+一个纯前端实现的短链创建器，利用大语言模型（LLM）基于URL自动生成准确的短链描述，帮助用户快速创建短链接。
+
+## 功能特性
+
+- **LLM 智能描述生成**：基于URL和提示信息自动生成准确的短链描述
+- **自定义短链**：支持用户自定义短链Code，便于记忆和传播
+
+## 使用方法
+
+### 基本使用流程
+
+1. **输入原始URL**：在"原始链接 URL"字段中输入需要缩短的链接
+2. **添加提示信息**（可选但推荐）：在"提示信息"中补充链接相关的上下文信息，帮助LLM生成更准确的描述
+3. **生成描述**：点击"1) 生成描述"按钮，系统会调用LLM生成短链描述
+4. **创建短链**：点击"2) 创建短链"按钮，生成最终的短链接
+5. **复制使用**：使用"复制短链"按钮复制生成的短链接
+
