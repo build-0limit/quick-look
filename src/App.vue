@@ -67,25 +67,17 @@ async function callLLM() {
   setStatus("正在调用 LLM 生成描述（仅基于 URL + 提示信息）…");
 
   try {
-    const resp = await fetch(endpoint.value.trim(), {
+    const resp = await fetch("/api/describe", {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${apiKey.value.trim()}`,
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
+        url: targetUrl,
+        hint: hintText,
+        apiKey: apiKey.value.trim(),
         model: model.value.trim() || "qwen-plus",
-        messages: [
-          { 
-            role: "system", 
-            content: "你是短链平台的描述生成助手。你只能基于用户给出的URL字符串与提示信息推断页面用途；不要臆造具体事实（例如价格、品牌、优惠、功能细节）。输出必须是一段中文短描述（20-80字），纯文本，不要Markdown，不要换行，不要包含URL。"
-          },
-          { 
-            role: "user", 
-            content: `URL：${targetUrl}\n提示信息（可能为空）：${hintText || "(空)"}\n\n任务：生成一段用于短链 description 的短描述。\n要求：\n1) 如果无法从URL/提示信息判断页面用途，直接输出：需要补充描述\n2) 若能判断，描述要中性、具体但不夸大，避免任何编造细节。\n`
-          }
-        ],
-        temperature: 0.2
+        endpoint: endpoint.value.trim()
       })
     });
 
@@ -95,7 +87,7 @@ async function callLLM() {
     }
     
     const data = await resp.json();
-    const content = data?.choices?.[0]?.message?.content;
+    const content = data?.description;
     
     if (!content) throw new Error("LLM 返回为空或格式不符合预期");
     
