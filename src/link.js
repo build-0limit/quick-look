@@ -46,7 +46,7 @@ function escapeHtml(s) {
 // 调用大模型API生成描述
 async function generateDescriptionByLLM(url, hint = "", apiKey, model = "qwen-plus", endpoint = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions") {
   const targetUrl = url.trim();
-  const hintText = sanitizeText(hint, 500);
+  const hintText = hint;
 
   if (!isHttpUrl(targetUrl)) {
     throw new Error("Invalid URL (must be http/https)");
