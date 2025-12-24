@@ -3,7 +3,6 @@ import { ref, onMounted, onUnmounted } from 'vue';
 import { useRoute, useRouteQuery } from 'vue-router';
 
 const route = useRoute();
-const info = useRouteQuery('info');
 const raw = useRouteQuery('raw');
 
 const code = ref(route.params.code as string);
@@ -13,16 +12,6 @@ const error = ref('');
 const loading = ref(true);
 const countdown = ref(3); // 默认3秒倒计时
 const timer = ref<number | null>(null);
-
-// HTML转义
-const escapeHtml = (s: string): string => {
-  return String(s)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-};
 
 // 处理短链跳转，调用/s/{code}接口
 const handleRedirect = async () => {
@@ -73,7 +62,7 @@ const startCountdown = () => {
   
   // 清除可能存在的旧定时器
   if (timer.value) {
-    clearInterval(timer.value);
+    window.clearInterval(timer.value);
   }
   
   // 设置新定时器
@@ -81,7 +70,7 @@ const startCountdown = () => {
     countdown.value--;
     
     if (countdown.value <= 0) {
-      clearInterval(timer.value!);
+      window.clearInterval(timer.value!);
       timer.value = null;
       redirectToTarget();
     }
@@ -103,7 +92,7 @@ onMounted(() => {
 // 组件卸载时清除定时器
 onUnmounted(() => {
   if (timer.value) {
-    clearInterval(timer.value);
+    window.clearInterval(timer.value);
     timer.value = null;
   }
 });
@@ -125,7 +114,7 @@ onUnmounted(() => {
         <span v-else>正在跳转...</span>
       </div>
 
-      <a class="btn" :href="targetUrl" rel="noopener noreferrer" @click="timer && clearInterval(timer)">
+      <a class="btn" :href="targetUrl" rel="noopener noreferrer" @click="timer && window.clearInterval(timer)">
         立即访问
       </a>
     </div>
