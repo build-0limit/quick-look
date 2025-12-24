@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue';
-import { useRoute, useRouteQuery } from 'vue-router';
+import { useRoute } from 'vue-router';
 
 const route = useRoute();
-const raw = useRouteQuery('raw');
 
 const code = ref(route.params.code as string);
 const targetUrl = ref('');
@@ -38,12 +37,6 @@ const handleRedirect = async () => {
     description.value = data.description;
     
     // A) 已经请求了JSON信息，直接使用数据
-    
-    // B) 强制原样跳转
-    if (raw.value === '1') {
-      window.location.href = targetUrl.value;
-      return;
-    }
     
     // C) 默认：显示预览页，并设置3秒后自动跳转
     startCountdown();
@@ -114,7 +107,7 @@ onUnmounted(() => {
         <span v-else>正在跳转...</span>
       </div>
 
-      <a class="btn" :href="targetUrl" rel="noopener noreferrer" @click="timer && window.clearInterval(timer)">
+      <a class="btn" :href="targetUrl" rel="noopener noreferrer" @click="timer && window.clearInterval(timer.value)">
         立即访问
       </a>
     </div>
