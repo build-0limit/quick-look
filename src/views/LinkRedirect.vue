@@ -77,6 +77,13 @@ const redirectToTarget = () => {
   }
 };
 
+const handleImmediateRedirect = () => {
+  if (timer.value) {
+    window.clearInterval(timer.value);
+    timer.value = null;
+  }
+};
+
 // 组件挂载时直接调用接口
 onMounted(() => {
   handleRedirect();
@@ -107,7 +114,7 @@ onUnmounted(() => {
         <span v-else>正在跳转...</span>
       </div>
 
-      <a class="btn" :href="targetUrl" rel="noopener noreferrer" @click="timer && window.clearInterval(timer.value)">
+      <a class="btn" :href="targetUrl" rel="noopener noreferrer" @click="handleImmediateRedirect">
         立即访问
       </a>
     </div>
