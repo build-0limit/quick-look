@@ -8,6 +8,9 @@ const note = ref('');
 const hint = ref('');
 const description = ref('');
 
+// 添加短链域名配置
+const SHORT_DOMAIN = "https://dark-disk-2692.1a0686cf.er.aliyun-esa.net";
+
 // LLM 设置
 const apiKey = ref('');
 const model = ref('qwen-plus');
@@ -158,7 +161,7 @@ async function createShortLink() {
 
     lastCreateResponse.value = data;
 
-    const shortUrl = `${location.origin}/s/${data.code}`;
+    const shortUrl = `${SHORT_DOMAIN}/s/${data.code}`;
     result.value = `
       <div><b>Short URL：</b> <a href="${shortUrl}" target="_blank" rel="noopener noreferrer">${shortUrl}</a></div>
       <div><b>原始 URL：</b> <span class="mono">${data.url}</span></div>
