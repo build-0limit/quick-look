@@ -33,7 +33,7 @@ function setStatus(msg: string, type: string = "info") {
   
   // 添加状态变化动画
   setTimeout(() => {
-    const statusEl = document.querySelector('.status');
+    const statusEl = document.querySelector('.status') as HTMLElement;
     if (statusEl) {
       statusEl.style.animation = 'none';
       statusEl.offsetHeight; // 触发重排
@@ -197,7 +197,7 @@ async function createShortLink() {
     
     // 添加成功创建动画效果
     setTimeout(() => {
-      const resultDiv = document.querySelector('.result');
+      const resultDiv = document.querySelector('.result') as HTMLElement;
       if (resultDiv) {
         resultDiv.style.animation = 'none';
         resultDiv.offsetHeight;
