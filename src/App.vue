@@ -23,11 +23,23 @@ const lastCreateResponse = ref<any>(null);
 const result = ref('<div class="status">尚未创建。</div>');
 const btnDescribeDisabled = ref(false);
 const btnCreateDisabled = ref(false);
+const isLoading = ref(false);
+const isCreating = ref(false);
 
 // 设置状态信息
 function setStatus(msg: string, type: string = "info") {
   status.value = msg;
   statusType.value = type;
+  
+  // 添加状态变化动画
+  setTimeout(() => {
+    const statusEl = document.querySelector('.status');
+    if (statusEl) {
+      statusEl.style.animation = 'none';
+      statusEl.offsetHeight; // 触发重排
+      statusEl.style.animation = 'statusPulse 0.5s ease-out';
+    }
+  }, 10);
 }
 
 // 验证 URL
@@ -67,6 +79,7 @@ async function callLLM() {
   }
 
   btnDescribeDisabled.value = true;
+  isLoading.value = true;
   setStatus("正在调用 LLM 生成描述（仅基于 URL + 提示信息）…");
 
   try {
@@ -100,11 +113,22 @@ async function callLLM() {
       setStatus("LLM 无法判断页面用途：请补充“提示信息”或手动填写 description。", "err");
     } else {
       setStatus("LLM 描述已生成并填入 description。", "ok");
+      
+      // 添加成功动画效果
+      setTimeout(() => {
+        const descTextarea = document.querySelector('textarea[placeholder*="生成描述"]') as HTMLTextAreaElement;
+        if (descTextarea) {
+          descTextarea.style.animation = 'none';
+          descTextarea.offsetHeight;
+          descTextarea.style.animation = 'fadeInUp 0.5s ease-out';
+        }
+      }, 100);
     }
   } catch (e) {
     setStatus(`生成描述失败：${(e as Error).message}`, "err");
   } finally {
     btnDescribeDisabled.value = false;
+    isLoading.value = false;
   }
 }
 
@@ -136,6 +160,7 @@ async function createShortLink() {
   }
 
   btnCreateDisabled.value = true;
+  isCreating.value = true;
   setStatus("正在创建短链…");
 
   try {
@@ -169,24 +194,50 @@ async function createShortLink() {
     `;
 
     setStatus("短链创建成功。", "ok");
+    
+    // 添加成功创建动画效果
+    setTimeout(() => {
+      const resultDiv = document.querySelector('.result');
+      if (resultDiv) {
+        resultDiv.style.animation = 'none';
+        resultDiv.offsetHeight;
+        resultDiv.style.animation = 'resultSlideIn 0.5s ease-out';
+      }
+    }, 100);
   } catch (e) {
     setStatus(`创建失败：${(e as Error).message}`, "err");
   } finally {
     btnCreateDisabled.value = false;
+    isCreating.value = false;
   }
 }
 
 // 清空表单
 function clearForm() {
-  url.value = "";
-  code.value = "";
-  note.value = "";
-  hint.value = "";
-  description.value = "";
-  apiKey.value = "";
-  result.value = '<div class="status">尚未创建。</div>';
-  lastCreateResponse.value = null;
-  setStatus("");
+  // 添加清空动画效果
+  const inputs = document.querySelectorAll('input, textarea');
+  inputs.forEach((input, index) => {
+    setTimeout(() => {
+      (input as HTMLInputElement).style.animation = 'fadeOut 0.3s ease-out';
+    }, index * 50);
+  });
+  
+  setTimeout(() => {
+    url.value = "";
+    code.value = "";
+    note.value = "";
+    hint.value = "";
+    description.value = "";
+    apiKey.value = "";
+    result.value = '<div class="status">尚未创建。</div>';
+    lastCreateResponse.value = null;
+    setStatus("");
+    
+    // 重新显示输入框
+    inputs.forEach((input) => {
+      (input as HTMLInputElement).style.animation = 'fadeIn 0.3s ease-out';
+    });
+  }, 300);
 }
 
 // 复制短链
@@ -195,6 +246,18 @@ async function copyShortUrl() {
   const shortUrl = `${location.origin}/s/${lastCreateResponse.value.code}`;
   await navigator.clipboard.writeText(shortUrl);
   setStatus("短链已复制到剪贴板。", "ok");
+  
+  // 添加复制成功动画
+  const button = event?.target as HTMLButtonElement;
+  if (button) {
+    const originalText = button.textContent;
+    button.textContent = '✓ 已复制';
+    button.style.background = 'var(--success)';
+    setTimeout(() => {
+      button.textContent = originalText;
+      button.style.background = '';
+    }, 2000);
+  }
 }
 
 // 复制 JSON
@@ -202,13 +265,29 @@ async function copyJson() {
   if (!lastCreateResponse.value) return;
   await navigator.clipboard.writeText(JSON.stringify(lastCreateResponse.value, null, 2));
   setStatus("返回 JSON 已复制到剪贴板。", "ok");
+  
+  // 添加复制成功动画
+  const button = event?.target as HTMLButtonElement;
+  if (button) {
+    const originalText = button.textContent;
+    button.textContent = '✓ 已复制';
+    button.style.background = 'var(--success)';
+    setTimeout(() => {
+      button.textContent = originalText;
+      button.style.background = '';
+    }, 2000);
+  }
 }
 </script>
 
 <template>
   <div class="wrap">
     <div class="row" style="justify-content:space-between; align-items:center;">
-      <h1>短链创建器：LLM（仅基于 URL）生成描述 → 创建短链</h1>
+      <h1 class="main-title">
+        <span class="title-icon">🔗</span>
+        短链创建器：LLM（仅基于 URL）生成描述 → 创建短链
+        <span class="title-sparkle">✨</span>
+      </h1>
       <span class="pill">API：<span class="mono">POST /api/links</span></span>
     </div>
 
@@ -236,8 +315,14 @@ async function copyJson() {
         <textarea v-model="description" placeholder="可先点击“生成描述”，也可以手动填写"></textarea>
 
         <div class="row" style="margin-top:10px;">
-          <button class="btn" id="btnDescribe" @click="callLLM" :disabled="btnDescribeDisabled">1) 生成描述（LLM，仅基于 URL）</button>
-          <button class="btn secondary" id="btnCreate" @click="createShortLink" :disabled="btnCreateDisabled">2) 创建短链</button>
+          <button class="btn" id="btnDescribe" @click="callLLM" :disabled="btnDescribeDisabled">
+            <span v-if="isLoading" class="loading"></span>
+            {{ isLoading ? '生成中...' : '1) 生成描述（LLM，仅基于 URL）' }}
+          </button>
+          <button class="btn secondary" id="btnCreate" @click="createShortLink" :disabled="btnCreateDisabled">
+            <span v-if="isCreating" class="loading"></span>
+            {{ isCreating ? '创建中...' : '2) 创建短链' }}
+          </button>
           <button class="btn ghost" id="btnClear" type="button" @click="clearForm">清空</button>
         </div>
 
